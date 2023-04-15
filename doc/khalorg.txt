@@ -1,0 +1,5 @@
+Khalorg
+
+```
+use { 'BartSte/nvim-khalorg', requires = 'nvim-orgmode/orgmode' }
+```
