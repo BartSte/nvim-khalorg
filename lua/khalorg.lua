@@ -2,6 +2,10 @@ local Files = require('orgmode.parser.files')
 
 local M = {}
 
+M.setup = function (opts)
+  M.calendar = opts.calendar
+end
+
 M.success = function(output)
     print('Success!')
     vim.api.nvim_echo({ { table.concat(output, '\n') } }, true, {})
@@ -27,9 +31,15 @@ local function get_fold_under_cursor()
     return table.concat(lines, '\n')
 end
 
-M.list = function(exporter)
+M.new = function(exporter)
     local org_agenda_item = get_fold_under_cursor(0)
-    local cmd = "echo \"" .. org_agenda_item .. "\" | khalorg new outlook_local"
+    local cmd = "echo \"" .. org_agenda_item .. "\" | khalorg new " .. M.calendar
+    return exporter(cmd, '', M.success, M.error)
+end
+
+M.edit = function(exporter)
+    local org_agenda_item = get_fold_under_cursor(0)
+    local cmd = "echo \"" .. org_agenda_item .. "\" | khalorg edit " .. M.calendar
     return exporter(cmd, '', M.success, M.error)
 end
 
