@@ -37,9 +37,15 @@ M.new = function(exporter)
     return exporter(cmd, '', M.success, M.error)
 end
 
-M.edit = function(exporter)
+M.edit_props = function(exporter)
     local org_agenda_item = get_fold_under_cursor(0)
     local cmd = "echo \"" .. org_agenda_item .. "\" | khalorg edit " .. M.calendar
+    return exporter(cmd, '', M.success, M.error)
+end
+
+M.edit_all = function(exporter)
+    local org_agenda_item = get_fold_under_cursor(0)
+    local cmd = "echo \"" .. org_agenda_item .. "\" | khalorg edit --edit_dates " .. M.calendar
     return exporter(cmd, '', M.success, M.error)
 end
 
