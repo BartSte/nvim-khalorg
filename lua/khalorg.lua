@@ -49,5 +49,11 @@ M.edit_all = function(exporter)
     return exporter(cmd, '', M.success, M.error)
 end
 
+M.delete = function(exporter)
+    local org_agenda_item = get_fold_under_cursor(0)
+    local cmd = "echo \"" .. org_agenda_item .. "\" | khalorg delete " .. M.calendar
+    return exporter(cmd, '', M.success, M.error)
+end
+
 return M
 
