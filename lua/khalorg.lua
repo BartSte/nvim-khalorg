@@ -1,7 +1,6 @@
 local Files = require('orgmode.parser.files')
 
 --TODO: bugfix: if no empty line is present after the last agenda item, the fold is not recognized
---TODO: test with minimal config
 
 -- Module table.
 -- @field calendar string
