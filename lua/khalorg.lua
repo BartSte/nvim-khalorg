@@ -69,10 +69,10 @@ end
 -- @param opts table {calendar: string}
 M.setup = function(opts)
   M.calendar = opts.calendar
-  M.new = M.make_exporter('khalorg new' .. M.calendar)
-  M.edit = M.make_exporter('khalorg edit' .. M.calendar)
-  M.delete = M.make_exporter('khalorg delete' .. M.calendar)
-  M.edit_all = M.make_exporter('khalorg edit --edit-dates' .. M.calendar)
+  M.new = M.make_exporter('khalorg new ' .. M.calendar)
+  M.edit = M.make_exporter('khalorg edit ' .. M.calendar)
+  M.delete = M.make_exporter('khalorg delete ' .. M.calendar)
+  M.edit_all = M.make_exporter('khalorg edit --edit-dates ' .. M.calendar)
 end
 
 return M
