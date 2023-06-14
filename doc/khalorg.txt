@@ -1,7 +1,8 @@
 *nvim-khalorg.txt*  Neovim documentation
 
-nvim-khalorg.txt  Plugin to interact with khalorg: an interface between the
-org mode and the khal cli calendar.
+Plugin to interact with `khalorg`: an interface between the org mode and the
+`khal` cli calendar. If you never heard of `khalorg`, take a look at the gitHub
+page: https://github.com/BartSte/khalorg
 
 CONTENTS                                              *nvim-khalorg-contents*
 
@@ -105,7 +106,7 @@ make your own khalorg export functions.
     function:
 
 	```lua
-	new = khalorg.make_exporter('khalorg new')
+	new = khalorg.make_exporter('khalorg new my_calendar')
 	```
 
 ==============================================================================
