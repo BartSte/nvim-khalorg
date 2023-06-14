@@ -5,14 +5,14 @@ org mode and the khal cli calendar.
 
 CONTENTS                                              *nvim-khalorg-contents*
 
-1. Introduction                                     *nvim-khalorg-introduction*
-2. Installation                                     *nvim-khalorg-installation*
-3. Configuration                                    *nvim-khalorg-configuration*
-4. Usage                                            *nvim-khalorg-usage*
-5. Functions                                        *nvim-khalorg-functions*
-6. Troubleshooting                                  *nvim-khalorg-troubleshooting*
-7. Contributing                                     *nvim-khalorg-contributing*
-8. License                                          *nvim-khalorg-license*
+1. Introduction                                     nvim-khalorg-introduction
+2. Installation                                     nvim-khalorg-installation
+3. Configuration                                    nvim-khalorg-configuration
+4. Usage                                            nvim-khalorg-usage
+5. Functions                                        nvim-khalorg-functions
+6. Troubleshooting                                  nvim-khalorg-troubleshooting
+7. Contributing                                     nvim-khalorg-contributing
+8. License                                          nvim-khalorg-license
 
 ==============================================================================
 1. Introduction                                             *nvim-khalorg-introduction*
