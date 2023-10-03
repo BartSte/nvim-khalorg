@@ -1,13 +1,15 @@
 # README - nvim-khalorg
 
-[Click here for the GitHub page.](https://github.com/BartSte/nvim-khalorg) 
+[Click here for the GitHub page.](https://github.com/BartSte/nvim-khalorg)
 
 Plugin to interact with `khalorg`: an interface between the org mode and the
 `khal` cli calendar. If you never heard of `khalorg`, take a look at the
 [GitHub page](https://github.com/BartSte/khalorg)
 
 ## Demo
+
 The demo below demonstrates the following features using this neovim plugin:
+
 - `khalorg new`: convert an org agenda item into a `khal` agenda item.
 - `khalorg list`: convert a `khal` agenda item into an org agenda item.
 - `khalorg edit`: edit an existing `khal` agenda item with org mode.
@@ -15,7 +17,7 @@ The demo below demonstrates the following features using this neovim plugin:
 
 ![neovim-plugin](https://github.com/BartSte/khalorg/blob/main/demo/neovim-plugin.gif?raw=true)
 
-## CONTENTS                                              
+## CONTENTS
 
 1. [Introduction](#introduction)
 2. [Installation](#installation)
@@ -96,7 +98,7 @@ The following function is used to create the functions above and can be used to
 make your own khalorg export functions.
 
 - `khalorg.make_exporter(khalorg_command)`:  
-Returns a function that, when called, does the following:
+  Returns a function that, when called, does the following:
   1. Get the current fold.
   2. Get the start and end line of the fold.
   3. Get the text of the fold.
