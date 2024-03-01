@@ -1,4 +1,4 @@
-local Files = require('orgmode.parser.files')
+local ts_utils = require('orgmode.utils.treesitter')
 
 -- Module table.
 -- @field calendar string
@@ -15,12 +15,16 @@ local M = {}
 -- @param node_type string
 -- @return {number, number} startfold, endfold
 local function get_fold_range_at_cursor(node_type)
-  local node = Files.get_node_at_cursor()
+  local node = ts_utils.get_node_at_cursor()
   while node and node:type() ~= node_type do
     node = node:parent()
   end
-  local startfold, _, endfold, _ = node:range()
-  return { startfold, endfold }
+  if node == nil then
+    error('No fold found under the cursor')
+  else
+    local startfold, _, endfold, _ = vim.treesitter.get_node_range(node)
+    return { startfold, endfold }
+  end
 end
 
 -- Print the output of a successful export.

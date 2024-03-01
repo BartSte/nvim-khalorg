@@ -42,5 +42,8 @@ luac.out
 *.x86_64
 *.hex
 
+# Vim
+doc/tags
+
 # User specific
 Session.vim
