@@ -20,7 +20,7 @@ Please note that this project is released with a Contributor Code of Conduct. By
 
 If you encounter any bugs or issues, please report them on the issue tracker at:
 
-https://github.com/username/nvim-khalorg/issues
+https://github.com/BartSte/nvim-khalorg/issues
 
 ## License
 
