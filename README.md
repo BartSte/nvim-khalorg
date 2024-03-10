@@ -48,7 +48,7 @@ installed `khalorg`, which can be found here: https://github.com/BartSte/khalorg
 
 ## Configuration
 
-The following configuration options are available through the `khalorg.setup`
+The following configuration options are available through the `require("khalorg").setup`
 function:
 
 - calendar: The name of the calendar to use (default: 'default').
@@ -57,7 +57,7 @@ Configuring `nvim-khalorg` can be done by placing the following in your
 `init.lua`:
 
 ```lua
-require('khalorg').setup({
+require("khalorg").setup({
     calendar = 'my_calendar'
 })
 ```
@@ -67,6 +67,7 @@ use. You can add the export functions of `nvim-khalorg` to `nvim-orgmode` by
 adding the following to your `init.lua`:
 
 ```lua
+local khalorg = require('khalorg')
 orgmode.setup_ts_grammar()
 orgmode.setup({
     org_custom_exports = {
@@ -89,20 +90,20 @@ can be found by running `:help orgmode-org_export`.
 The following functions are provided that send a fold in an org file to a
 khalorg command through stdin:
 
-- `khalorg.new()`: add a new item to khal.
-- `khalorg.delete()`: delete a khal item.
-- `khalorg.edit_props()`: edit properties of a khal item, the dates are not updated.
-- `khalorg.edit_all()`: edit properties of a khal item together with the dates.
+- `require("khalorg").new()`: add a new item to khal.
+- `require("khalorg").delete()`: delete a khal item.
+- `require("khalorg").edit_props()`: edit properties of a khal item, the dates are not updated.
+- `require("khalorg").edit_all()`: edit properties of a khal item together with the dates.
 
 The following function is used to create the functions above and can be used to
 make your own khalorg export functions.
 
-- `khalorg.make_exporter(khalorg_command)`:  
+- `require("khalorg").make_exporter(<khalorg_command>)`:  
   Returns a function that, when called, does the following:
   1. Get the current fold.
   2. Get the start and end line of the fold.
   3. Get the text of the fold.
-  4. Send the text of the fold to `khalorg_command` through stdin.
+  4. Send the text of the fold to `<khalorg_command>` through stdin.
 
 The example below shows how to use `khalorg.make_exporter` function to create
 the `khalorg.new` function:
