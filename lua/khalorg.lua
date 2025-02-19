@@ -105,10 +105,10 @@ M.get_headline_and_timestamps_in_fold_under_cursor = function()
       timestamps = vim.treesitter.get_node_text(captures[5], bufnr)
     end
 
-    if properties == nil then
+    -- The @properties capture is optional
+    if properties == nil and captures[6] then
       properties = vim.treesitter.get_node_text(captures[6], bufnr)
     end
-
   end
 
   if timestamps and headline then
