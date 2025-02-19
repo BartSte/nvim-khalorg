@@ -6,7 +6,7 @@ Plugin to interact with `khalorg`: an interface between the org mode and the
 `khal` cli calendar. If you never heard of `khalorg`, take a look at the
 [GitHub page](https://github.com/BartSte/khalorg)
 
-## Demo
+# Demo
 
 The demo below demonstrates the following features using this neovim plugin:
 
@@ -17,7 +17,7 @@ The demo below demonstrates the following features using this neovim plugin:
 
 ![neovim-plugin](https://github.com/BartSte/khalorg/blob/main/demo/neovim-plugin.gif?raw=true)
 
-## CONTENTS
+# CONTENTS
 
 1. [Introduction](#introduction)
 2. [Installation](#installation)
@@ -28,12 +28,12 @@ The demo below demonstrates the following features using this neovim plugin:
 7. [Contributing](#contributing)
 8. [License](#license)
 
-## Introduction
+# Introduction
 
 The `nvim-khalorg` plugin sends folds in an org document to khalorg through
 stdin. The functions are exposed through `nvim-orgmode` its custom export option.
 
-## Installation
+# Installation
 
 Install using your favorite plugin manager. For example packer:
 
@@ -46,7 +46,7 @@ use {'BartSte/nvim-khalorg'}
 where `nvim-treesitter` and `nvim-orgmode` are required. Also, make sure you
 installed `khalorg`, which can be found here: https://github.com/BartSte/khalorg
 
-## Configuration
+# Configuration
 
 The following configuration options are available through the `require("khalorg").setup`
 function:
@@ -79,13 +79,13 @@ orgmode.setup({
 })
 ```
 
-## Usage
+# Usage
 
 After configuring `nvim-khalorg` as is described above, you can access them
 through `orgmode-org_export` (default mapping: `<leader>oe`). More information
 can be found by running `:help orgmode-org_export`.
 
-## Functions
+# Functions
 
 The following functions are provided that send a fold in an org file to a
 khalorg command through stdin:
@@ -112,7 +112,7 @@ the `khalorg.new` function:
 new = khalorg.make_exporter('khalorg new my_calendar')
 ```
 
-## Troubleshooting
+# Troubleshooting
 
 If you encounter any issues, please report them on the issue tracker at:
 [nvim-khalorg issues](https://github.com/BartSte/nvim-khalorg/issues)
@@ -120,11 +120,11 @@ If you encounter any issues, please report them on the issue tracker at:
 If you think the issue arises from khalorg instead of nvim-khalorg, please
 report them here: [khalorg issues](https://github.com/BartSte/khalorg/issues)
 
-## Contributing
+# Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING](./CONTRIBUTING.md) for
 more information.
 
-## License
+# License
 
 Distributed under the MIT License.
