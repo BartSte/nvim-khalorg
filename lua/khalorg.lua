@@ -1,31 +1,16 @@
 local ts_utils = require("orgmode.utils.treesitter")
 
--- Module table.
--- @field calendar string
--- @field new function
--- @field edit function
--- @field delete function
--- @field edit_all function
--- @field get_headline_and_timestamps_in_fold_under_cursor function
--- @field make_exporter function
--- @field setup function
+---@class Khalorg
+---@field calendar string
+---@field delete function
+---@field edit function
+---@field edit_all function
+---@field get_fold_node function
+---@field get_headline_and_timestamps_in_fold_under_cursor function
+---@field make_exporter function
+---@field new function
+---@field setup function
 local M = {}
-
--- Get the range of the fold under the cursor of a given type.
--- @param node_type string
--- @return {number, number} startfold, endfold
-local function get_fold_range_at_cursor(node_type)
-  local node = ts_utils.get_node_at_cursor()
-  while node and node:type() ~= node_type do
-    node = node:parent()
-  end
-  if node == nil then
-    error("No fold found under the cursor")
-  else
-    local startfold, _, endfold, _ = vim.treesitter.get_node_range(node)
-    return { startfold, endfold }
-  end
-end
 
 local function get_fold_node(node_type)
   local node = ts_utils.get_node_at_cursor()
@@ -53,7 +38,7 @@ local function export_error(err)
 end
 
 -- Get the headline, timestamps and properties of the fold under the cursor. If no fold, headline or timestamp is found, return an empty string.
--- @return string
+---@return string
 M.get_headline_and_timestamps_in_fold_under_cursor = function()
   local bufnr = vim.api.nvim_get_current_buf()
   local fold_node = get_fold_node("section")
@@ -119,8 +104,8 @@ M.get_headline_and_timestamps_in_fold_under_cursor = function()
 end
 
 -- Create an exporter function for a given khalorg command.
--- @param khalorg_command string
--- @return function
+---@param khalorg_command string
+---@return function
 M.make_exporter = function(khalorg_command)
   return function(exporter)
     local org_agenda_item = M.get_headline_and_timestamps_in_fold_under_cursor()
@@ -135,7 +120,7 @@ M.make_exporter = function(khalorg_command)
 end
 
 -- Setup khalorg.
--- @param opts table {calendar: string}
+---@param opts table {calendar: string}
 M.setup = function(opts)
   M.calendar = opts.calendar
   M.new = M.make_exporter("khalorg new " .. M.calendar)
