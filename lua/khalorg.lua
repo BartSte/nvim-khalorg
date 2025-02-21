@@ -26,14 +26,14 @@ end
 -- Print the output of a successful export.
 --@param output string[]
 local function export_success(output)
-  print("Khalorg export successful")
+  vim.notify("Khalorg export successful")
   vim.api.nvim_echo({ { table.concat(output, "\n") } }, true, {})
 end
 
 -- Print the error message of a failed export.
 --@param err string[]
 local function export_error(err)
-  print("Khalorg export failed")
+  vim.notify("Khalorg export failed")
   vim.api.nvim_echo({ { table.concat(err, "\n"), "ErrorMsg" } }, true, {})
 end
 
