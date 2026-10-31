@@ -77,6 +77,22 @@ files between runs. Sync can rewrite the Org file using khalorg's event format.
 Deletion propagation is disabled by default. Preview changes before enabling
 delete_on_sync, which propagates deletions between sources.
 
+LIST AND IMPORT                                                 *khalorg-list*
+
+:KhalorgList [calendar] [start] [stop]    Open events in a separate Org buffer.
+:KhalorgCalendar                        Select a calendar, then list events.
+:KhalorgImport [calendar] [start] [stop]  Write events to a new mapped Org file.
+
+The default range comes from the sync configuration (today through 90d).
+Calendar names and common ranges support command completion. Escape spaces in
+command arguments with a backslash. List preserves source files and unsaved
+edits. Save the list buffer with :write /path/to/calendar.org.
+
+Import refuses to overwrite existing files. Use sync for existing files.
+Lua equivalents are list(opts) and import(opts), with calendar, start, stop,
+and org_file options. on_complete(result, bufnr) receives the process result
+and any preview buffer.
+
 CUSTOM EXPORTS                                                  *khalorg-make_exporter*
 >
     local show_event = require('khalorg').make_exporter({ 'cat' })

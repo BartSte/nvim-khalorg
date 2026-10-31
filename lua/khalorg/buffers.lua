@@ -16,7 +16,7 @@ function M.snapshot(file)
   local snapshots = {}
   for _, bufnr in ipairs(M.for_file(file)) do
     if vim.bo[bufnr].modified then
-      return nil, "Save changes to " .. file .. " before running Khalorg sync"
+      return nil, "Save changes to " .. file .. " before this Khalorg operation"
     end
     snapshots[bufnr] = vim.api.nvim_buf_get_changedtick(bufnr)
   end

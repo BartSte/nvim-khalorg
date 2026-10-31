@@ -151,6 +151,16 @@ function M.sync_dry_run(opts)
   return M.sync(opts)
 end
 
+function M.list(opts)
+  return require("khalorg.list").run(opts)
+end
+
+function M.import(opts)
+  opts = type(opts) == "table" and vim.deepcopy(opts) or {}
+  opts.import = true
+  return M.list(opts)
+end
+
 ---@param opts? table
 function M.setup(opts)
   M.calendar = config.setup(opts).calendar

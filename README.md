@@ -118,6 +118,26 @@ Preview changes before enabling this option. Sync can rewrite the Org file using
 Sync requires a khalorg version with the `sync` command. The plugin detects missing support and reports an upgrade requirement.
 Remote CalDAV synchronization still requires `vdirsyncer`.
 
+## List and import
+
+- `:KhalorgList [calendar] [start] [stop]` opens calendar events in a separate Org buffer.
+- `:KhalorgCalendar` opens a calendar picker, then lists its events.
+- `:KhalorgImport [calendar] [start] [stop]` writes events to a new mapped Org file.
+
+The default range comes from the sync configuration (`today` through `90d`).
+Calendar names and common date ranges support command completion. Escape spaces in command arguments with a backslash.
+List buffers preserve the source file and unsaved edits. Save a list buffer with `:write /path/to/calendar.org`.
+Import refuses to overwrite existing files. Use sync to update an existing calendar file.
+
+Lua equivalents are `list(opts)` and `import(opts)`:
+
+```lua
+require('khalorg').list({ calendar = 'work', start = 'today', stop = '7d' })
+require('khalorg').import({ calendar = 'work', org_file = '~/org/new-calendar.org' })
+```
+
+The optional `on_complete(result, bufnr)` callback receives the process result and any preview buffer.
+
 ## Lua API
 
 | Function | Action |
