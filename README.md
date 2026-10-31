@@ -54,6 +54,8 @@ function:
 
 - calendar: The name of the calendar to use (default: 'default').
 
+`setup()` and `setup({})` both select `default`. Calendar names must contain at least one non-space character.
+
 Configuring `nvim-khalorg` can be done by placing the following in your
 `init.lua`:
 

@@ -15,7 +15,7 @@ package.loaded['lua.khalorg'] = nil
 local orgmode = require('orgmode')
 local khalorg = require('lua.khalorg')
 
-khalorg.setup({ calendar = '' })
+khalorg.setup()
 orgmode.setup_ts_grammar()
 
 --An echo export is added to test if the make_exporter function works properly.
