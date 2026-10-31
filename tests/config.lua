@@ -23,7 +23,7 @@ orgmode.setup({
   org_custom_exports = {
     c = {
       label = 'Let the agenda item pass through.',
-      action = khalorg.make_exporter('cat')
+      action = khalorg.make_exporter({ 'cat' })
     }
   }
 })

@@ -32,6 +32,7 @@ The demo below demonstrates the following features using this neovim plugin:
 
 The `nvim-khalorg` plugin sends folds in an org document to khalorg through
 stdin. The functions are exposed through `nvim-orgmode` its custom export option.
+Commands run asynchronously without a shell. Event text passes directly through stdin.
 
 # Installation
 
@@ -98,7 +99,7 @@ khalorg command through stdin:
 The following function is used to create the functions above and can be used to
 make your own khalorg export functions.
 
-- `require("khalorg").make_exporter(<khalorg_command>)`:  
+- `require("khalorg").make_exporter(<argument_array>)`:
   Returns a function that, when called, does the following:
   1. Get the current fold.
   2. Get the start and end line of the fold.
@@ -109,8 +110,10 @@ The example below shows how to use `khalorg.make_exporter` function to create
 the `khalorg.new` function:
 
 ```lua
-new = khalorg.make_exporter('khalorg new my_calendar')
+new = khalorg.make_exporter({ 'khalorg', 'new', 'my_calendar' })
 ```
+
+Custom commands must use argument arrays. Shell command strings are no longer supported.
 
 # Troubleshooting
 
