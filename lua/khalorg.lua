@@ -1,4 +1,3 @@
-local ts_utils = require("orgmode.utils.treesitter")
 local process = require("khalorg.process")
 local config = require("khalorg.config")
 
@@ -7,15 +6,15 @@ local config = require("khalorg.config")
 ---@field delete function
 ---@field edit function
 ---@field edit_all function
----@field get_fold_node function
----@field get_headline_and_timestamps_in_fold_under_cursor function
+---@field get_item_in_fold_under_cursor function
 ---@field make_exporter function
 ---@field new function
 ---@field setup function
-local M = {}
+local M = { calendar = config.values.calendar }
 
 local function get_fold_node(node_type)
-  local node = ts_utils.get_node_at_cursor()
+  vim.treesitter.get_parser(0, "org"):parse()
+  local node = vim.treesitter.get_node({ lang = "org" })
   while node and node:type() ~= node_type do
     node = node:parent()
   end
@@ -62,7 +61,7 @@ M.get_item_in_fold_under_cursor = function()
   -- A timestamp node already includes an explicit Org date range.
   -- Never manufacture a range from separate planning entries.
   local timestamps = {}
-  local query = ts_utils.get_query("(timestamp) @timestamp")
+  local query = vim.treesitter.query.parse("org", "(timestamp) @timestamp")
   for _, node in query:iter_captures(fold_node, bufnr, startfold, endfold) do
     if node:start() < endfold then
       local value = vim.treesitter.get_node_text(node, bufnr)
@@ -112,14 +111,39 @@ M.make_exporter = function(khalorg_command)
   end
 end
 
--- Setup khalorg.
----@param opts? table {calendar: string}
-M.setup = function(opts)
+local function action(command, edit_dates, opts)
+  opts = type(opts) == "table" and opts or {}
+  local target = config.resolve(opts)
+  local argv = { target.executable, command }
+  if edit_dates then
+    argv[#argv + 1] = "--edit-dates"
+  end
+  argv[#argv + 1] = target.calendar
+  return M.make_exporter(argv)()
+end
+
+-- These functions also accept the unused callback from org_custom_exports.
+function M.new(opts)
+  return action("new", false, opts)
+end
+
+function M.edit(opts)
+  return action("edit", false, opts)
+end
+
+function M.delete(opts)
+  return action("delete", false, opts)
+end
+
+function M.edit_all(opts)
+  return action("edit", true, opts)
+end
+
+M.edit_props = M.edit
+
+---@param opts? table
+function M.setup(opts)
   M.calendar = config.setup(opts).calendar
-  M.new = M.make_exporter({ "khalorg", "new", M.calendar })
-  M.edit = M.make_exporter({ "khalorg", "edit", M.calendar })
-  M.delete = M.make_exporter({ "khalorg", "delete", M.calendar })
-  M.edit_all = M.make_exporter({ "khalorg", "edit", "--edit-dates", M.calendar })
 end
 
 return M

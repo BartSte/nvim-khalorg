@@ -1,29 +1,15 @@
---This file servers a a minimal config file for testing. Ensure that the followin plugins are installed:
--- - nvim-treesitter
--- - orgmode.nvim
---Khalorg is not required as a plugin as it is loaded directly from the lua directory.
-require 'nvim-treesitter.configs'.setup {
-  highlight = {
-    disable = { 'org', 'orgagenda' },
-    additional_vim_regex_highlighting = { 'org', 'orgagenda' }
-  },
-}
-
--- Reset the orgmode and khalorg modules to ensure that the modules are reloaded.
-package.loaded['orgmode'] = nil
-package.loaded['lua.khalorg'] = nil
-local orgmode = require('orgmode')
-local khalorg = require('lua.khalorg')
-
+-- Append the repository and orgmode checkout to runtimepath before loading this file.
+local khalorg = require("khalorg")
 khalorg.setup()
-orgmode.setup_ts_grammar()
-
---An echo export is added to test if the make_exporter function works properly.
-orgmode.setup({
+require("orgmode").setup({
   org_custom_exports = {
     c = {
-      label = 'Let the agenda item pass through.',
-      action = khalorg.make_exporter({ 'cat' })
-    }
-  }
+      label = "Show the event text",
+      action = khalorg.make_exporter({ "cat" }),
+    },
+    n = { label = "Add a khal event", action = khalorg.new },
+    e = { label = "Edit a khal event", action = khalorg.edit },
+    E = { label = "Edit a khal event and its dates", action = khalorg.edit_all },
+    d = { label = "Delete a khal event", action = khalorg.delete },
+  },
 })
