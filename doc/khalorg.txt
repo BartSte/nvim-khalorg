@@ -21,6 +21,22 @@ CONFIGURATION                                                   *khalorg-setup*
 setup() and setup({}) select the default calendar. Public functions also work
 before setup. Calendar names must contain at least one non-space character.
 
+CALENDAR MAPPINGS                                               *khalorg-calendars*
+>
+    require('khalorg').setup({
+      calendar = 'personal',
+      executable = 'khalorg',
+      calendars = {
+        personal = { org_file = '~/org/personal.org' },
+        work = { org_file = '~/org/work.org' },
+      },
+    })
+<
+Actions use the calendar mapped to the current file. Other files use calendar.
+An explicit action option, such as edit({ calendar = 'work' }), overrides this
+selection. Each file can map to only one calendar. Paths expand ~ and resolve
+existing symbolic links. executable selects the khalorg executable.
+
 USAGE                                                           *khalorg-usage*
 
 Place the cursor inside an Org event. Use the orgmode export menu (<leader>oe),

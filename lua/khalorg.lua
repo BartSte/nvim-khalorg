@@ -111,30 +111,32 @@ M.make_exporter = function(khalorg_command)
   end
 end
 
-local function action(command, edit_dates)
-  local argv = { "khalorg", command }
+local function action(command, edit_dates, opts)
+  opts = type(opts) == "table" and opts or {}
+  local target = config.resolve(opts)
+  local argv = { target.executable, command }
   if edit_dates then
     argv[#argv + 1] = "--edit-dates"
   end
-  argv[#argv + 1] = config.values.calendar
+  argv[#argv + 1] = target.calendar
   return M.make_exporter(argv)()
 end
 
 -- These functions also accept the unused callback from org_custom_exports.
-function M.new()
-  return action("new")
+function M.new(opts)
+  return action("new", false, opts)
 end
 
-function M.edit()
-  return action("edit")
+function M.edit(opts)
+  return action("edit", false, opts)
 end
 
-function M.delete()
-  return action("delete")
+function M.delete(opts)
+  return action("delete", false, opts)
 end
 
-function M.edit_all()
-  return action("edit", true)
+function M.edit_all(opts)
+  return action("edit", true, opts)
 end
 
 M.edit_props = M.edit

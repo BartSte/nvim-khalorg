@@ -24,3 +24,20 @@ h.test("public actions work directly and as orgmode export callbacks", function(
   process.run, khalorg.get_item_in_fold_under_cursor = run, get_item
   khalorg.setup()
 end)
+
+h.test("event actions select the calendar for the current file", function()
+  local run, get_item = process.run, khalorg.get_item_in_fold_under_cursor
+  local called
+  process.run = function(argv) called = argv end
+  khalorg.get_item_in_fold_under_cursor = function() return "* Meeting\n<2030-01-01 Tue>" end
+  local file = vim.fn.tempname() .. " work.org"
+  khalorg.setup({ executable = "/path with spaces/khalorg", calendars = { work = { org_file = file } } })
+  vim.cmd.enew({ bang = true })
+  vim.api.nvim_buf_set_name(0, file)
+  khalorg.edit()
+  h.equal({ "/path with spaces/khalorg", "edit", "work" }, called)
+  khalorg.edit({ calendar = "another calendar" })
+  h.equal("another calendar", called[3])
+  process.run, khalorg.get_item_in_fold_under_cursor = run, get_item
+  khalorg.setup()
+end)

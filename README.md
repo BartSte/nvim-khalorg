@@ -37,6 +37,26 @@ require('orgmode').setup({
 Calendar names must contain at least one non-space character.
 The public functions also work before setup and use the default calendar.
 
+### Multiple calendars
+
+Map calendar names to Org files:
+
+```lua
+require('khalorg').setup({
+  calendar = 'personal',
+  executable = 'khalorg',
+  calendars = {
+    personal = { org_file = '~/org/personal.org' },
+    work = { org_file = '~/org/work.org' },
+  },
+})
+```
+
+Actions select the calendar for the current file. Other files use the default `calendar` value.
+An explicit Lua option overrides file selection: `require('khalorg').edit({ calendar = 'work' })`.
+Each file can map to only one calendar. Paths expand `~` and resolve existing symbolic links.
+Set `executable` to use a khalorg installation outside `PATH`. Paths with spaces are supported.
+
 ## Usage
 
 Place the cursor inside an Org event. Open the orgmode export menu with `<leader>oe` and select an action.
