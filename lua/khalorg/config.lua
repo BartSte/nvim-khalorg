@@ -1,4 +1,8 @@
-local defaults = { calendar = "default", executable = "khalorg", calendars = {} }
+local defaults = {
+  calendar = "default", executable = "khalorg", calendars = {},
+  sync = { start = "today", stop = "90d", conflict_resolution = "khal", edit_dates = false,
+    delete_on_sync = false, dry_run = false, filetags = {} },
+}
 local M = { values = vim.deepcopy(defaults) }
 
 local function nonempty(value, name)
@@ -10,6 +14,27 @@ function M.path(path)
   return vim.uv.fs_realpath(absolute) or absolute
 end
 
+function M.sync_options(target, opts, values)
+  values = values or M.values
+  assert(type(values.sync) == "table", "Khalorg sync options must be a table")
+  assert(target.sync == nil or type(target.sync) == "table", "Calendar sync options must be a table")
+  local options = vim.tbl_deep_extend("force", {}, values.sync, target.sync or {}, opts or {})
+  nonempty(options.start, "sync start")
+  nonempty(options.stop, "sync stop")
+  assert(options.conflict_resolution == "khal" or options.conflict_resolution == "org", "Conflict resolution must be khal or org")
+  for _, key in ipairs({ "edit_dates", "delete_on_sync", "dry_run" }) do
+    assert(type(options[key]) == "boolean", "Khalorg " .. key .. " must be a boolean")
+  end
+  assert(vim.islist(options.filetags), "Khalorg filetags must be a list")
+  for _, tag in ipairs(options.filetags) do
+    nonempty(tag, "file tag")
+  end
+  if options.state_dir then
+    nonempty(options.state_dir, "state_dir")
+  end
+  return options
+end
+
 function M.setup(opts)
   if opts == nil then
     opts = {}
@@ -19,6 +44,7 @@ function M.setup(opts)
   nonempty(values.calendar, "calendar")
   nonempty(values.executable, "executable")
   assert(type(values.calendars) == "table", "Khalorg calendars must be a table")
+  M.sync_options({}, {}, values)
   local files = {}
   for name, calendar in pairs(values.calendars) do
     nonempty(name, "calendar name")
@@ -27,6 +53,7 @@ function M.setup(opts)
     calendar.org_file = M.path(calendar.org_file)
     assert(not files[calendar.org_file], "Each Org file must map to only one calendar")
     files[calendar.org_file] = name
+    M.sync_options(calendar, {}, values)
   end
   M.values = values
   return values

@@ -78,6 +78,46 @@ Edits and deletion require the existing event's `UID` property.
 `edit()` updates properties and the description. `edit_all()` also updates dates and recurrence.
 Deletion removes the whole recurring series. Khalorg does not support deletion of one occurrence.
 
+## Sync
+
+After setup, use `:KhalorgSync [calendar]` to synchronize a whole Org file with khal.
+Use `:KhalorgSyncDryRun [calendar]` to preview changes. Calendar names support command completion.
+The current file's mapping supplies the calendar and path. Without a mapping, sync uses the current named `.org` file.
+Save the file before sync. Unsaved changes block the command.
+
+Sync runs asynchronously and opens a results buffer. Overlapping operations for the same calendar or file are rejected.
+Clean buffers reload after sync. Edits made during sync remain in the buffer, with a message about disk changes.
+
+Configure global defaults or per-calendar overrides:
+
+```lua
+require('khalorg').setup({
+  calendars = {
+    work = {
+      org_file = '~/org/work.org',
+      sync = { start = 'today', stop = '30d' },
+    },
+  },
+  sync = {
+    start = 'today', stop = '90d',
+    conflict_resolution = 'khal', -- or 'org'
+    edit_dates = false,
+    delete_on_sync = false,
+    -- state_dir = '~/.local/share/khalorg',
+    filetags = {},
+  },
+})
+```
+
+Lua calls accept overrides: `require('khalorg').sync({ calendar = 'work', dry_run = true })`.
+`sync_dry_run(opts)` always enables the preview. The `on_complete(result)` option receives the process result.
+Khalorg owns UID matching, conflict resolution, and persistent sync state. Keep its state files between runs.
+Deletion propagation is disabled by default. `delete_on_sync = true` propagates deletions between sources.
+Preview changes before enabling this option. Sync can rewrite the Org file using khalorg's event format.
+
+Sync requires a khalorg version with the `sync` command. The plugin detects missing support and reports an upgrade requirement.
+Remote CalDAV synchronization still requires `vdirsyncer`.
+
 ## Lua API
 
 | Function | Action |

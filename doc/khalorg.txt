@@ -52,6 +52,31 @@ Edits and deletion require an existing UID property. edit() updates properties
 and the description. edit_all() also updates dates and recurrence. Deletion
 removes a whole recurring series.
 
+SYNC                                                            *khalorg-sync*
+
+:KhalorgSync [calendar]          Sync a whole Org file with khal.
+:KhalorgSyncDryRun [calendar]    Preview changes without applying them.
+
+Commands require setup(). Calendar names support completion. The file mapping
+supplies the calendar and path. Without a mapping, the current named .org file
+is used. Save changes before sync. Clean buffers reload after sync. Edits made
+during sync remain in the buffer, with a message about disk changes.
+
+Sync runs asynchronously and opens a results buffer. Overlapping operations
+for the same calendar or file are rejected. Missing CLI support produces an
+upgrade message. Remote CalDAV synchronization still requires vdirsyncer.
+
+Global sync options and per-calendar sync overrides accept start (today),
+stop (90d), conflict_resolution (khal or org), edit_dates (false),
+delete_on_sync (false), state_dir (khalorg default), and filetags (a tag list).
+Use sync(opts) or sync_dry_run(opts) for Lua overrides. on_complete(result)
+receives the process result. sync_dry_run() always enables the preview.
+
+Khalorg owns UID matching, conflicts, and persistent sync state. Keep its state
+files between runs. Sync can rewrite the Org file using khalorg's event format.
+Deletion propagation is disabled by default. Preview changes before enabling
+delete_on_sync, which propagates deletions between sources.
+
 CUSTOM EXPORTS                                                  *khalorg-make_exporter*
 >
     local show_event = require('khalorg').make_exporter({ 'cat' })

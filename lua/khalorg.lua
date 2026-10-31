@@ -141,9 +141,20 @@ end
 
 M.edit_props = M.edit
 
+function M.sync(opts)
+  return require("khalorg.sync").run(opts)
+end
+
+function M.sync_dry_run(opts)
+  opts = type(opts) == "table" and vim.deepcopy(opts) or {}
+  opts.dry_run = true
+  return M.sync(opts)
+end
+
 ---@param opts? table
 function M.setup(opts)
   M.calendar = config.setup(opts).calendar
+  require("khalorg.commands").setup()
 end
 
 return M
