@@ -1,4 +1,5 @@
 local ts_utils = require("orgmode.utils.treesitter")
+local process = require("khalorg.process")
 
 ---@class Khalorg
 ---@field calendar string
@@ -104,17 +105,23 @@ M.get_item_in_fold_under_cursor = function()
 end
 
 -- Create an exporter function for a given khalorg command.
----@param khalorg_command string
+---@param khalorg_command string[]
 ---@return function
 M.make_exporter = function(khalorg_command)
-  return function(exporter)
+  assert(type(khalorg_command) == "table" and #khalorg_command > 0, "Use an argument array for the khalorg command")
+  return function()
     local org_agenda_item = M.get_item_in_fold_under_cursor()
     if org_agenda_item == "" then
       export_error({ "No agenda item found under the cursor" })
       return
     else
-      local cmd = 'echo "' .. org_agenda_item .. '" | ' .. khalorg_command
-      return exporter(cmd, "", export_success, export_error)
+      return process.run(khalorg_command, org_agenda_item, function(result)
+        if result.code == 0 then
+          export_success(vim.split(result.stdout or "", "\n", { plain = true }))
+        else
+          export_error(vim.split(result.stderr or "", "\n", { plain = true }))
+        end
+      end)
     end
   end
 end
@@ -123,10 +130,10 @@ end
 ---@param opts table {calendar: string}
 M.setup = function(opts)
   M.calendar = opts.calendar
-  M.new = M.make_exporter("khalorg new " .. M.calendar)
-  M.edit = M.make_exporter("khalorg edit " .. M.calendar)
-  M.delete = M.make_exporter("khalorg delete " .. M.calendar)
-  M.edit_all = M.make_exporter("khalorg edit --edit-dates " .. M.calendar)
+  M.new = M.make_exporter({ "khalorg", "new", M.calendar })
+  M.edit = M.make_exporter({ "khalorg", "edit", M.calendar })
+  M.delete = M.make_exporter({ "khalorg", "delete", M.calendar })
+  M.edit_all = M.make_exporter({ "khalorg", "edit", "--edit-dates", M.calendar })
 end
 
 return M

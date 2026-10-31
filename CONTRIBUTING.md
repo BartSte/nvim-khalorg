@@ -18,6 +18,12 @@ Please note that this project is released with a Contributor Code of Conduct. By
 
 ## Reporting Bugs
 
+Run the regression tests with Neovim 0.11 or later:
+
+```console
+nvim --headless -u NONE -l tests/run.lua
+```
+
 If you encounter any bugs or issues, please report them on the issue tracker at:
 
 https://github.com/BartSte/nvim-khalorg/issues
