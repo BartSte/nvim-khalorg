@@ -1,140 +1,98 @@
-# README - nvim-khalorg
+# nvim-khalorg
 
-[Click here for the GitHub page.](https://github.com/BartSte/nvim-khalorg)
-
-Plugin to interact with `khalorg`: an interface between the org mode and the
-`khal` cli calendar. If you never heard of `khalorg`, take a look at the
-[GitHub page](https://github.com/BartSte/khalorg)
-
-# Demo
-
-The demo below demonstrates the following features using this neovim plugin:
-
-- `khalorg new`: convert an org agenda item into a `khal` agenda item.
-- `khalorg list`: convert a `khal` agenda item into an org agenda item.
-- `khalorg edit`: edit an existing `khal` agenda item with org mode.
-- `khalorg delete`: delete an existing `khal` item.
-
-![neovim-plugin](https://github.com/BartSte/khalorg/blob/main/demo/neovim-plugin.gif?raw=true)
-
-# CONTENTS
-
-1. [Introduction](#introduction)
-2. [Installation](#installation)
-3. [Configuration](#configuration)
-4. [Usage](#usage)
-5. [Functions](#functions)
-6. [Troubleshooting](#troubleshooting)
-7. [Contributing](#contributing)
-8. [License](#license)
-
-# Introduction
-
-The `nvim-khalorg` plugin sends folds in an org document to khalorg through
-stdin. The functions are exposed through `nvim-orgmode` its custom export option.
+A Neovim interface for [khalorg](https://github.com/BartSte/khalorg) and the khal calendar.
+Export one Org event to create, edit, or delete its calendar event.
 Commands run asynchronously without a shell. Event text passes directly through stdin.
 
-# Installation
+![Neovim demo](https://github.com/BartSte/khalorg/blob/main/demo/neovim-plugin.gif?raw=true)
 
-Install using your favorite plugin manager. For example packer:
+## Requirements
 
-```lua
-use {'nvim-treesitter/nvim-treesitter'}
-use {'nvim-orgmode/orgmode'}
-use {'BartSte/nvim-khalorg'}
-```
+- Neovim 0.11 or later.
+- [nvim-orgmode](https://github.com/nvim-orgmode/orgmode) with its Org Tree-sitter parser installed.
+- `khalorg` and `khal` available on `PATH`, with a configured khal calendar.
 
-where `nvim-treesitter` and `nvim-orgmode` are required. Also, make sure you
-installed `khalorg`, which can be found here: https://github.com/BartSte/khalorg
+Orgmode installs its parser during setup. A separate nvim-treesitter installation is optional.
 
-# Configuration
+## Installation and configuration
 
-The following configuration options are available through the `require("khalorg").setup`
-function:
-
-- calendar: The name of the calendar to use (default: 'default').
-
-`setup()` and `setup({})` both select `default`. Calendar names must contain at least one non-space character.
-
-Configuring `nvim-khalorg` can be done by placing the following in your
-`init.lua`:
-
-```lua
-require("khalorg").setup({
-    calendar = 'my_calendar'
-})
-```
-
-where you need to replace `'my_calendar'` with the `khal` calendar you want to
-use. You can add the export functions of `nvim-khalorg` to `nvim-orgmode` by
-adding the following to your `init.lua`:
+Install `nvim-orgmode/orgmode` and `BartSte/nvim-khalorg` with your plugin manager.
+Then configure both plugins:
 
 ```lua
 local khalorg = require('khalorg')
-orgmode.setup_ts_grammar()
-orgmode.setup({
-    org_custom_exports = {
-        n = { label = 'Add a new khal item', action = khalorg.new },
-        d = { label = 'Delete a khal item', action = khalorg.delete },
-        e = { label = 'Edit properties of a khal item', action = khalorg.edit },
-        E = { label = 'Edit properties & dates of a khal item', action = khalorg.edit_all }
-    }
+khalorg.setup({ calendar = 'my_calendar' })
+
+require('orgmode').setup({
+  org_custom_exports = {
+    n = { label = 'Add a khal event', action = khalorg.new },
+    e = { label = 'Edit a khal event', action = khalorg.edit },
+    E = { label = 'Edit a khal event and its dates', action = khalorg.edit_all },
+    d = { label = 'Delete a khal event', action = khalorg.delete },
+  },
 })
 ```
 
-# Usage
+`setup()` and `setup({})` both select the `default` calendar.
+Calendar names must contain at least one non-space character.
+The public functions also work before setup and use the default calendar.
 
-After configuring `nvim-khalorg` as is described above, you can access them
-through `orgmode-org_export` (default mapping: `<leader>oe`). More information
-can be found by running `:help orgmode-org_export`.
+## Usage
 
-Place one active event timestamp directly below the headline. A single `SCHEDULED` or `DEADLINE` timestamp also works.
-Explicit ranges such as `<2030-01-01 Tue>--<2030-01-02 Wed>` remain intact.
-The plugin rejects multiple independent active timestamps, including separate scheduled and deadline dates.
-Inactive timestamps do not define the event dates.
+Place the cursor inside an Org event. Open the orgmode export menu with `<leader>oe` and select an action.
+You can also call a function directly:
 
-# Functions
-
-The following functions are provided that send a fold in an org file to a
-khalorg command through stdin:
-
-- `require("khalorg").new()`: add a new item to khal.
-- `require("khalorg").delete()`: delete a khal item.
-- `require("khalorg").edit_props()`: edit properties of a khal item, the dates are not updated.
-- `require("khalorg").edit_all()`: edit properties of a khal item together with the dates.
-
-The following function is used to create the functions above and can be used to
-make your own khalorg export functions.
-
-- `require("khalorg").make_exporter(<argument_array>)`:
-  Returns a function that, when called, does the following:
-  1. Get the current fold.
-  2. Get the start and end line of the fold.
-  3. Get the text of the fold.
-  4. Send the text of the fold to `<khalorg_command>` through stdin.
-
-The example below shows how to use `khalorg.make_exporter` function to create
-the `khalorg.new` function:
-
-```lua
-new = khalorg.make_exporter({ 'khalorg', 'new', 'my_calendar' })
+```vim
+:lua require('khalorg').new()
+:lua require('khalorg').edit()
+:lua require('khalorg').edit_all()
+:lua require('khalorg').delete()
 ```
 
-Custom commands must use argument arrays. Shell command strings are no longer supported.
+Place one active event timestamp directly below the headline. A single `SCHEDULED` or `DEADLINE` timestamp also works.
+Explicit ranges such as `<2030-01-01 Tue>--<2030-01-02 Wed>` remain intact. Repeaters remain intact.
+The plugin rejects multiple independent active timestamps, including separate scheduled and deadline dates.
+Inactive timestamps do not define the event dates. Child sections do not enter the export.
 
-# Troubleshooting
+Edits and deletion require the existing event's `UID` property.
+`edit()` updates properties and the description. `edit_all()` also updates dates and recurrence.
+Deletion removes the whole recurring series. Khalorg does not support deletion of one occurrence.
 
-If you encounter any issues, please report them on the issue tracker at:
-[nvim-khalorg issues](https://github.com/BartSte/nvim-khalorg/issues)
+## Lua API
 
-If you think the issue arises from khalorg instead of nvim-khalorg, please
-report them here: [khalorg issues](https://github.com/BartSte/khalorg/issues)
+| Function | Action |
+| --- | --- |
+| `setup(opts)` | Apply the configuration. The default calendar is `default`. |
+| `new()` | Create the event under the cursor. |
+| `edit()` | Update event properties and the description. |
+| `edit_props()` | Alias for `edit()`. |
+| `edit_all()` | Update event properties, description, dates, and recurrence. |
+| `delete()` | Delete the calendar event under the cursor. |
+| `get_item_in_fold_under_cursor()` | Return the selected event text, or an empty string without an active timestamp. |
+| `make_exporter(argv)` | Create a custom action from an argument array. |
 
-# Contributing
+Public actions work directly and through `org_custom_exports`. No exporter callback is required.
+Existing callback arguments from orgmode are accepted and ignored.
 
-Contributions are welcome! Please see [CONTRIBUTING](./CONTRIBUTING.md) for
-more information.
+Custom commands must use argument arrays:
 
-# License
+```lua
+local show_event = require('khalorg').make_exporter({ 'cat' })
+show_event()
+```
 
-Distributed under the MIT License.
+Migration: replace shell strings such as `'khalorg new work'` with `{ 'khalorg', 'new', 'work' }`.
+Shell pipes and substitutions are not supported.
+
+## Troubleshooting
+
+Report plugin errors at [nvim-khalorg issues](https://github.com/BartSte/nvim-khalorg/issues).
+Report calendar conversion errors at [khalorg issues](https://github.com/BartSte/khalorg/issues).
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the regression test command and contribution steps.
+
+## License
+
+Distributed under the [MIT License](./LICENSE).
