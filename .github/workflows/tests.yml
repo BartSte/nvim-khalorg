@@ -14,4 +14,19 @@ jobs:
         with:
           version: ${{ matrix.neovim }}
           neovim: true
+      - uses: actions/checkout@v4
+        with:
+          repository: nvim-orgmode/orgmode
+          ref: 61274cfda2cb5878f5587d4fab0429ec356d4ec8
+          path: .deps/orgmode
+      - uses: actions/checkout@v4
+        with:
+          repository: nvim-orgmode/tree-sitter-org
+          ref: 2.0.4
+          path: .deps/tree-sitter-org
+      - run: |
+          mkdir -p .deps/orgmode/parser
+          cc -O2 -shared -fPIC -I .deps/tree-sitter-org/src .deps/tree-sitter-org/src/parser.c .deps/tree-sitter-org/src/scanner.c -o .deps/orgmode/parser/org.so
       - run: nvim --headless -u NONE -l tests/run.lua
+        env:
+          ORG_MODE_PATH: ${{ github.workspace }}/.deps/orgmode
