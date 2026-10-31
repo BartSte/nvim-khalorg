@@ -1,5 +1,6 @@
 local ts_utils = require("orgmode.utils.treesitter")
 local process = require("khalorg.process")
+local config = require("khalorg.config")
 
 ---@class Khalorg
 ---@field calendar string
@@ -112,9 +113,9 @@ M.make_exporter = function(khalorg_command)
 end
 
 -- Setup khalorg.
----@param opts table {calendar: string}
+---@param opts? table {calendar: string}
 M.setup = function(opts)
-  M.calendar = opts.calendar
+  M.calendar = config.setup(opts).calendar
   M.new = M.make_exporter({ "khalorg", "new", M.calendar })
   M.edit = M.make_exporter({ "khalorg", "edit", M.calendar })
   M.delete = M.make_exporter({ "khalorg", "delete", M.calendar })
