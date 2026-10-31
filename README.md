@@ -166,6 +166,10 @@ Shell pipes and substitutions are not supported.
 
 ## Troubleshooting
 
+Run `:checkhealth khalorg` for dependency and configuration diagnostics.
+The report checks Neovim, orgmode, the Org parser, khalorg CLI commands, khal, optional vdirsyncer, and mapped directories.
+CLI capability probes have a five-second timeout. Health checks do not change calendar data.
+
 Report plugin errors at [nvim-khalorg issues](https://github.com/BartSte/nvim-khalorg/issues).
 Report calendar conversion errors at [khalorg issues](https://github.com/BartSte/khalorg/issues).
 

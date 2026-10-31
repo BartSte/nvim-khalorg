@@ -105,4 +105,10 @@ get_item_in_fold_under_cursor() returns event text or an empty string without
 an active timestamp. Invalid or ambiguous selections raise an error. Public
 actions report these errors through Neovim messages.
 
+HEALTH                                                          *khalorg-health*
+
+:checkhealth khalorg checks Neovim, orgmode, the Org parser, khalorg commands,
+khal, optional vdirsyncer, and mapped directories. CLI probes have a
+five-second timeout. Health checks do not change calendar data.
+
 vim:tw=78:ts=8:ft=help:norl:
