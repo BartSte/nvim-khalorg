@@ -26,6 +26,15 @@ ORG_MODE_PATH=/path/to/orgmode nvim --headless -u NONE -l tests/run.lua
 
 Use an orgmode checkout with its Org parser installed. CI builds the parser before the tests.
 
+Run the integration suite against a separate khalorg installation with sync support:
+
+```console
+ORG_MODE_PATH=/path/to/orgmode KHALORG_INTEGRATION_BIN=/path/to/venv/bin/khalorg nvim --headless -u NONE -l tests/integration.lua
+```
+
+The suite creates a temporary khal configuration, calendar, database, log, and sync state.
+It does not use your calendar configuration. CI installs a pinned khalorg commit in a separate virtual environment.
+
 If you encounter any bugs or issues, please report them on the issue tracker at:
 
 https://github.com/BartSte/nvim-khalorg/issues

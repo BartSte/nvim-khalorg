@@ -52,6 +52,25 @@ Edits and deletion require an existing UID property. edit() updates properties
 and the description. edit_all() also updates dates and recurrence. Deletion
 removes a whole recurring series.
 
+UID WRITEBACK                                                   *khalorg-uid*
+
+new() writes the created event's UID into the source buffer. It fills an empty
+UID property or adds a drawer. Save the buffer to retain the UID on disk.
+Existing UIDs block creation. Use edit() for those events.
+
+Structured calendar reads before and after creation must identify one new UID
+with the expected title and times. Ambiguous matches leave the source unchanged.
+Calendar reads must succeed before creation starts. If the source changes,
+the UID is reported without altering the buffer. Cursor or buffer switches do
+not redirect writeback. Overlap protection also covers edits and deletion.
+
+Set write_uid = false in setup, or call new({ write_uid = false }), to disable
+writeback. Titles or UIDs with tabs or newlines cannot use the structured lookup.
+For those events, disable writeback and use list or sync to retrieve the UID.
+
+Event actions accept calendar and on_complete(result) options. With writeback,
+new() calls on_complete(result, uid) after the final calendar read.
+
 SYNC                                                            *khalorg-sync*
 
 :KhalorgSync [calendar]          Sync a whole Org file with khal.
@@ -68,7 +87,8 @@ upgrade message. Remote CalDAV synchronization still requires vdirsyncer.
 
 Global sync options and per-calendar sync overrides accept start (today),
 stop (90d), conflict_resolution (khal or org), edit_dates (false),
-delete_on_sync (false), state_dir (khalorg default), and filetags (a tag list).
+delete_on_sync (false), state_dir (khalorg default), format (the Org output
+template), and filetags (a tag list). Keep the UID field in sync templates.
 Use sync(opts) or sync_dry_run(opts) for Lua overrides. on_complete(result)
 receives the process result. sync_dry_run() always enables the preview.
 
@@ -90,7 +110,7 @@ edits. Save the list buffer with :write /path/to/calendar.org.
 
 Import refuses to overwrite existing files. Use sync for existing files.
 Lua equivalents are list(opts) and import(opts), with calendar, start, stop,
-and org_file options. on_complete(result, bufnr) receives the process result
+org_file, and format options. on_complete(result, bufnr) receives the process result
 and any preview buffer.
 
 CUSTOM EXPORTS                                                  *khalorg-make_exporter*

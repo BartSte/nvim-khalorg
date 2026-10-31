@@ -2,6 +2,10 @@ local M = {}
 
 function M.setup()
   local function sync(args, dry_run)
+    if #args.fargs > 1 then
+      require("khalorg.ui").error("Use one calendar name. Escape spaces with a backslash.")
+      return
+    end
     local opts = { calendar = args.fargs[1] }
     if dry_run then
       require("khalorg").sync_dry_run(opts)
@@ -9,7 +13,7 @@ function M.setup()
       require("khalorg").sync(opts)
     end
   end
-  local options = { nargs = "?", complete = function() return require("khalorg.config").names() end, force = true }
+  local options = { nargs = "*", complete = function() return require("khalorg.config").names() end, force = true }
   vim.api.nvim_create_user_command("KhalorgSync", function(args) sync(args, false) end, options)
   vim.api.nvim_create_user_command("KhalorgSyncDryRun", function(args) sync(args, true) end, options)
   local function list(args, import)

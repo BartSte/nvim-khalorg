@@ -1,5 +1,6 @@
 local defaults = {
   calendar = "default", executable = "khalorg", calendars = {},
+  write_uid = true,
   sync = { start = "today", stop = "90d", conflict_resolution = "khal", edit_dates = false,
     delete_on_sync = false, dry_run = false, filetags = {} },
 }
@@ -11,7 +12,10 @@ end
 
 function M.path(path)
   local absolute = vim.fs.normalize(vim.fn.fnamemodify(vim.fn.expand(path), ":p"))
-  return vim.uv.fs_realpath(absolute) or absolute
+  local existing = vim.uv.fs_realpath(absolute)
+  if existing then return existing end
+  local parent = vim.uv.fs_realpath(vim.fs.dirname(absolute))
+  return parent and vim.fs.joinpath(parent, vim.fs.basename(absolute)) or absolute
 end
 
 function M.sync_options(target, opts, values)
@@ -32,6 +36,9 @@ function M.sync_options(target, opts, values)
   if options.state_dir then
     nonempty(options.state_dir, "state_dir")
   end
+  if options.format then
+    nonempty(options.format, "format")
+  end
   return options
 end
 
@@ -43,6 +50,7 @@ function M.setup(opts)
   local values = vim.tbl_deep_extend("force", vim.deepcopy(defaults), opts)
   nonempty(values.calendar, "calendar")
   nonempty(values.executable, "executable")
+  assert(type(values.write_uid) == "boolean", "Khalorg write_uid must be a boolean")
   assert(type(values.calendars) == "table", "Khalorg calendars must be a table")
   M.sync_options({}, {}, values)
   local files = {}

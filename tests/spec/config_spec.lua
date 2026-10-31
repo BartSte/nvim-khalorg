@@ -34,6 +34,23 @@ h.test("duplicate calendar files and invalid executable values are rejected", fu
   khalorg.setup()
 end)
 
+h.test("new mapped files resolve through symbolic parent directories", function()
+  local config = require("khalorg.config")
+  local directory = vim.fn.tempname()
+  vim.fn.mkdir(directory, "p")
+  local link = directory .. "-link"
+  assert(vim.uv.fs_symlink(directory, link))
+  khalorg.setup({ calendars = { work = { org_file = link .. "/new.org" } } })
+  h.equal(directory .. "/new.org", config.resolve({ calendar = "work" }).org_file)
+  vim.fn.writefile({}, directory .. "/new.org")
+  vim.cmd.enew({ bang = true })
+  vim.api.nvim_buf_set_name(0, link .. "/new.org")
+  h.equal("work", config.resolve().calendar)
+  vim.fn.delete(link)
+  vim.fn.delete(directory, "rf")
+  khalorg.setup()
+end)
+
 h.test("calendar validation preserves the last valid configuration", function()
   khalorg.setup({ calendar = "Work calendar" })
   for _, opts in ipairs({ "invalid", { calendar = false }, { calendar = "" }, { calendar = "  " } }) do

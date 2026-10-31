@@ -46,7 +46,11 @@ local function prepare(opts)
     assert(snapshots, err)
     assert(vim.fn.isdirectory(vim.fs.dirname(target.org_file)) == 1, "The Org file directory does not exist")
   end
-  local argv = { target.executable, "list", "--", target.calendar, range.start, range.stop }
+  local argv = { target.executable, "list" }
+  if range.format then
+    vim.list_extend(argv, { "--format", range.format })
+  end
+  vim.list_extend(argv, { "--", target.calendar, range.start, range.stop })
   return target, argv
 end
 

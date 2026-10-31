@@ -23,6 +23,9 @@ local function prepare(opts)
   if options.state_dir then
     vim.list_extend(argv, { "--state-dir", config.path(options.state_dir) })
   end
+  if options.format then
+    vim.list_extend(argv, { "--format", options.format })
+  end
   for _, tag in ipairs(options.filetags) do
     vim.list_extend(argv, { "--filetags", tag })
   end
