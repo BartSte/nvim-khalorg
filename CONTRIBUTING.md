@@ -21,8 +21,10 @@ Please note that this project is released with a Contributor Code of Conduct. By
 Run the regression tests with Neovim 0.11 or later:
 
 ```console
-nvim --headless -u NONE -l tests/run.lua
+ORG_MODE_PATH=/path/to/orgmode nvim --headless -u NONE -l tests/run.lua
 ```
+
+Use an orgmode checkout with its Org parser installed. CI builds the parser before the tests.
 
 If you encounter any bugs or issues, please report them on the issue tracker at:
 

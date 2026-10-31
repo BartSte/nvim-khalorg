@@ -44,24 +44,13 @@ M.get_item_in_fold_under_cursor = function()
   local bufnr = vim.api.nvim_get_current_buf()
   local fold_node = get_fold_node("section")
 
-  -- Get fold limits to remove nested folds in `query:iter_captures` bellow
-  local query_fold_limits = ts_utils.get_query([[
-  ((section) @section (#offset! @section))
-  ]])
-
-  -- local startfold, endfold = vim.treesitter.get_node_range(node)
-  local startfold, endfold
-  local i = 1
-  for _, _, metadata in query_fold_limits:iter_captures(fold_node, bufnr) do
-    local range = metadata[1].range
-
-    if i == 1 then
-      startfold = range[1]
-      endfold = range[3]
-    elseif range[1] < endfold then
-      endfold = range[1]
+  -- Export only this section, without its child sections.
+  local startfold, _, endfold = fold_node:range()
+  for child in fold_node:iter_children() do
+    if child:type() == "section" then
+      endfold = child:start()
+      break
     end
-    i = i + 1
   end
 
   local query = ts_utils.get_query([[
@@ -79,7 +68,7 @@ M.get_item_in_fold_under_cursor = function()
 
   -- This is the text containing the timestamps and the headline
   local properties, timestamps, headline, body = nil, nil, nil, nil
-  for id, node, metadata, _ in query:iter_captures(fold_node, bufnr, startfold, endfold) do
+  for id, node in query:iter_captures(fold_node, bufnr, startfold, endfold) do
     local name = query.captures[id]
 
     if name == "headline" and headline == nil then
