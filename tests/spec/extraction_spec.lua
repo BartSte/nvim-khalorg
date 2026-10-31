@@ -27,3 +27,32 @@ h.test("cursor in a child exports only the child", function()
   assert(text:find("** Child", 1, true))
   assert(not text:find("Parent", 1, true))
 end)
+
+h.test("explicit date ranges retain their original separator", function()
+  local range = "<2030-01-01 Tue 01:00>--<2030-01-02 Wed 02:00>"
+  local text = extract({ "* Meeting", range, "Notes" })
+  assert(text:find(range, 1, true))
+end)
+
+h.test("scheduled and deadline dates are not combined", function()
+  local ok, err = pcall(extract, { "* Meeting", "SCHEDULED: <2030-01-01 Tue 01:00-02:00> DEADLINE: <2030-01-02 Wed 01:00-02:00>" })
+  assert(not ok)
+  assert(tostring(err):find("Multiple event timestamps", 1, true))
+end)
+
+h.test("inactive CLOSED dates do not change the event range", function()
+  local text = extract({ "* Meeting", "CLOSED: [2030-01-01 Tue] SCHEDULED: <2030-01-02 Wed 01:00-02:00>" })
+  assert(text:find("<2030-01-02 Wed 01:00-02:00>", 1, true))
+  assert(not text:find("CLOSED", 1, true))
+end)
+
+h.test("multiple occurrence timestamps fail before export", function()
+  local ok, err = pcall(extract, { "* Meeting", "<2030-01-01 Tue 01:00-02:00>", "<2030-01-08 Tue 01:00-02:00>" })
+  assert(not ok)
+  assert(tostring(err):find("Multiple event timestamps", 1, true))
+end)
+
+h.test("a single repeater remains intact", function()
+  local timestamp = "<2030-01-01 Tue 01:00-02:00 +1w>"
+  assert(extract({ "* Meeting", timestamp }):find(timestamp, 1, true))
+end)

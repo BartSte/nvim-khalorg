@@ -53,44 +53,36 @@ M.get_item_in_fold_under_cursor = function()
     end
   end
 
-  local query = ts_utils.get_query([[
-  (section
-    headline: (headline
-                tags: (tag_list)? @tags) @headline
-    plan: (plan
-            (entry
-              name: (entry_name)? @name
-              (timestamp
-                repeat: (repeat)? @repeat) @timestamp))
-    property_drawer: (property_drawer)? @properties
-    (body)? @body)
-  ]])
+  local function text(field)
+    local node = fold_node:field(field)[1]
+    return node and vim.treesitter.get_node_text(node, bufnr) or ""
+  end
 
-  -- This is the text containing the timestamps and the headline
-  local properties, timestamps, headline, body = nil, nil, nil, nil
-  for id, node in query:iter_captures(fold_node, bufnr, startfold, endfold) do
-    local name = query.captures[id]
-
-    if name == "headline" and headline == nil then
-      headline = vim.treesitter.get_node_text(node, bufnr)
-    elseif name == "timestamp" then
-      if timestamps ~= nil then
-        timestamps = timestamps .. "--" .. vim.treesitter.get_node_text(node, bufnr)
-      else
-        timestamps = vim.treesitter.get_node_text(node, bufnr)
+  -- A timestamp node already includes an explicit Org date range.
+  -- Never manufacture a range from separate planning entries.
+  local timestamps = {}
+  local query = ts_utils.get_query("(timestamp) @timestamp")
+  for _, node in query:iter_captures(fold_node, bufnr, startfold, endfold) do
+    if node:start() < endfold then
+      local value = vim.treesitter.get_node_text(node, bufnr)
+      if value:sub(1, 1) == "<" then
+        timestamps[#timestamps + 1] = { node = node, text = value }
       end
-    elseif name == "properties" and properties == nil then
-      properties = vim.treesitter.get_node_text(node, bufnr)
-    elseif name == "body" and body == nil then
-      body = vim.treesitter.get_node_text(node, bufnr)
     end
   end
 
-  if timestamps and headline then
-    return table.concat({ headline, timestamps, properties or "", body or "" }, "\n")
-  else
+  if #timestamps == 0 then
     return ""
   end
+  if #timestamps > 1 then
+    error("Multiple event timestamps found. Keep one timestamp or one explicit Org date range.", 0)
+  end
+  local timestamp = timestamps[1]
+  local plan = fold_node:field("plan")[1]
+  if not plan or timestamp.node:parent():parent() ~= plan then
+    error("Place the event timestamp directly below its headline.", 0)
+  end
+  return table.concat({ text("headline"), timestamp.text, text("property_drawer"), text("body") }, "\n")
 end
 
 -- Create an exporter function for a given khalorg command.
@@ -99,7 +91,11 @@ end
 M.make_exporter = function(khalorg_command)
   assert(type(khalorg_command) == "table" and #khalorg_command > 0, "Use an argument array for the khalorg command")
   return function()
-    local org_agenda_item = M.get_item_in_fold_under_cursor()
+    local ok, org_agenda_item = pcall(M.get_item_in_fold_under_cursor)
+    if not ok then
+      export_error({ tostring(org_agenda_item) })
+      return
+    end
     if org_agenda_item == "" then
       export_error({ "No agenda item found under the cursor" })
       return
