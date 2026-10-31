@@ -86,6 +86,11 @@ After configuring `nvim-khalorg` as is described above, you can access them
 through `orgmode-org_export` (default mapping: `<leader>oe`). More information
 can be found by running `:help orgmode-org_export`.
 
+Place one active event timestamp directly below the headline. A single `SCHEDULED` or `DEADLINE` timestamp also works.
+Explicit ranges such as `<2030-01-01 Tue>--<2030-01-02 Wed>` remain intact.
+The plugin rejects multiple independent active timestamps, including separate scheduled and deadline dates.
+Inactive timestamps do not define the event dates.
+
 # Functions
 
 The following functions are provided that send a fold in an org file to a
