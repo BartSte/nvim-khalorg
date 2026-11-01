@@ -1,183 +1,134 @@
-*khalorg.txt*
-                               For NVIM v0.8.0    Last change: 2026 October 31
+*khalorg.txt*  Neovim interface for khalorg
 
-==============================================================================
-Table of Contents                                  *khalorg-table-of-contents*
+REQUIREMENTS                                                    *khalorg-requirements*
 
-1. README - nvim-khalorg                       |khalorg-readme---nvim-khalorg|
-2. Demo                                                         |khalorg-demo|
-3. CONTENTS                                                 |khalorg-contents|
-4. Introduction                                         |khalorg-introduction|
-5. Installation                                         |khalorg-installation|
-6. Configuration                                       |khalorg-configuration|
-7. Usage                                                       |khalorg-usage|
-8. Functions                                               |khalorg-functions|
-9. Troubleshooting                                   |khalorg-troubleshooting|
-10. Contributing                                        |khalorg-contributing|
-11. License                                                  |khalorg-license|
-12. Links                                                      |khalorg-links|
+Neovim 0.11 or later, nvim-orgmode with its Org parser, and configured khalorg
+and khal executables on PATH. Orgmode installs its parser during setup.
 
-==============================================================================
-1. README - nvim-khalorg                       *khalorg-readme---nvim-khalorg*
-
-Click here for the GitHub page. <https://github.com/BartSte/nvim-khalorg>
-
-Plugin to interact with `khalorg`: an interface between the org mode and the
-`khal` cli calendar. If you never heard of `khalorg`, take a look at the GitHub
-page <https://github.com/BartSte/khalorg>
-
-
-==============================================================================
-2. Demo                                                         *khalorg-demo*
-
-The demo below demonstrates the following features using this neovim plugin:
-
-- `khalorg new`: convert an org agenda item into a `khal` agenda item.
-- `khalorg list`: convert a `khal` agenda item into an org agenda item.
-- `khalorg edit`: edit an existing `khal` agenda item with org mode.
-- `khalorg delete`: delete an existing `khal` item.
-
-
-==============================================================================
-3. CONTENTS                                                 *khalorg-contents*
-
-1. |khalorg-introduction|
-2. |khalorg-installation|
-3. |khalorg-configuration|
-4. |khalorg-usage|
-5. |khalorg-functions|
-6. |khalorg-troubleshooting|
-7. |khalorg-contributing|
-8. |khalorg-license|
-
-
-==============================================================================
-4. Introduction                                         *khalorg-introduction*
-
-The `nvim-khalorg` plugin sends folds in an org document to khalorg through
-stdin. The functions are exposed through `nvim-orgmode` its custom export
-option. Commands run asynchronously without a shell. Event text passes directly
-through stdin.
-
-
-==============================================================================
-5. Installation                                         *khalorg-installation*
-
-Install using your favorite plugin manager. For example packer:
-
->lua
-    use {'nvim-treesitter/nvim-treesitter'}
-    use {'nvim-orgmode/orgmode'}
-    use {'BartSte/nvim-khalorg'}
-<
-
-where `nvim-treesitter` and `nvim-orgmode` are required. Also, make sure you
-installed `khalorg`, which can be found here:
-https://github.com/BartSte/khalorg
-
-
-==============================================================================
-6. Configuration                                       *khalorg-configuration*
-
-The following configuration options are available through the
-`require("khalorg").setup` function:
-
-- calendar: The name of the calendar to use (default: 'default').
-
-Configuring `nvim-khalorg` can be done by placing the following in your
-`init.lua`:
-
->lua
-    require("khalorg").setup({
-        calendar = 'my_calendar'
-    })
-<
-
-where you need to replace `'my_calendar'` with the `khal` calendar you want to
-use. You can add the export functions of `nvim-khalorg` to `nvim-orgmode` by
-adding the following to your `init.lua`:
-
->lua
+CONFIGURATION                                                   *khalorg-setup*
+>
     local khalorg = require('khalorg')
-    orgmode.setup_ts_grammar()
-    orgmode.setup({
-        org_custom_exports = {
-            n = { label = 'Add a new khal item', action = khalorg.new },
-            d = { label = 'Delete a khal item', action = khalorg.delete },
-            e = { label = 'Edit properties of a khal item', action = khalorg.edit },
-            E = { label = 'Edit properties & dates of a khal item', action = khalorg.edit_all }
-        }
+    khalorg.setup({ calendar = 'my_calendar' })
+    require('orgmode').setup({
+      org_custom_exports = {
+        n = { label = 'Add a khal event', action = khalorg.new },
+        e = { label = 'Edit a khal event', action = khalorg.edit },
+        E = { label = 'Edit dates too', action = khalorg.edit_all },
+        d = { label = 'Delete a khal event', action = khalorg.delete },
+      },
     })
 <
+setup() and setup({}) select the default calendar. Public functions also work
+before setup. Calendar names must contain at least one non-space character.
 
-
-==============================================================================
-7. Usage                                                       *khalorg-usage*
-
-After configuring `nvim-khalorg` as is described above, you can access them
-through `orgmode-org_export` (default mapping: `<leader>oe`). More information
-can be found by running `:help orgmode-org_export`.
-
-
-==============================================================================
-8. Functions                                               *khalorg-functions*
-
-The following functions are provided that send a fold in an org file to a
-khalorg command through stdin:
-
-- `require("khalorg").new()`: add a new item to khal.
-- `require("khalorg").delete()`: delete a khal item.
-- `require("khalorg").edit_props()`: edit properties of a khal item, the dates are not updated.
-- `require("khalorg").edit_all()`: edit properties of a khal item together with the dates.
-
-The following function is used to create the functions above and can be used to
-make your own khalorg export functions.
-
-- `require("khalorg").make_exporter(<argument_array>)`:
-    Returns a function that, when called, does the following:
-    1. Get the current fold.
-    2. Get the start and end line of the fold.
-    3. Get the text of the fold.
-    4. Send the text of the fold to `<khalorg_command>` through stdin.
-
-The example below shows how to use `khalorg.make_exporter` function to create
-the `khalorg.new` function:
-
->lua
-    new = khalorg.make_exporter({ 'khalorg', 'new', 'my_calendar' })
+CALENDAR MAPPINGS                                               *khalorg-calendars*
+>
+    require('khalorg').setup({
+      calendar = 'personal',
+      executable = 'khalorg',
+      calendars = {
+        personal = { org_file = '~/org/personal.org' },
+        work = { org_file = '~/org/work.org' },
+      },
+    })
 <
+Actions use the calendar mapped to the current file. Other files use calendar.
+An explicit action option, such as edit({ calendar = 'work' }), overrides this
+selection. Each file can map to only one calendar. Paths expand ~ and resolve
+existing symbolic links. executable selects the khalorg executable.
 
-Custom commands must use argument arrays. Shell command strings are no longer
-supported.
+USAGE                                                           *khalorg-usage*
 
+Place the cursor inside an Org event. Use the orgmode export menu (<leader>oe),
+or call require('khalorg').new(), .edit(), .edit_all(), or .delete() directly.
+edit_props() is an alias for edit(). No exporter callback is required.
 
-==============================================================================
-9. Troubleshooting                                   *khalorg-troubleshooting*
+Place one active timestamp directly below the headline. A single SCHEDULED or
+DEADLINE timestamp also works. Explicit Org ranges and repeaters remain intact.
+Multiple independent active timestamps are rejected. Inactive timestamps do
+not define event dates. Child sections do not enter the export.
 
-If you encounter any issues, please report them on the issue tracker at:
-nvim-khalorg issues <https://github.com/BartSte/nvim-khalorg/issues>
+Edits and deletion require an existing UID property. edit() updates properties
+and the description. edit_all() also updates dates and recurrence. Deletion
+removes a whole recurring series.
 
-If you think the issue arises from khalorg instead of nvim-khalorg, please
-report them here: khalorg issues <https://github.com/BartSte/khalorg/issues>
+UID WRITEBACK                                                   *khalorg-uid*
 
+new() writes the created event's UID into the source buffer. It fills an empty
+UID property or adds a drawer. Save the buffer to retain the UID on disk.
+Existing UIDs block creation. Use edit() for those events.
 
-==============================================================================
-10. Contributing                                        *khalorg-contributing*
+Structured calendar reads before and after creation must identify one new UID
+with the expected title and times. Ambiguous matches leave the source unchanged.
+Calendar reads must succeed before creation starts. If the source changes,
+the UID is reported without altering the buffer. Cursor or buffer switches do
+not redirect writeback. Overlap protection also covers edits and deletion.
 
-Contributions are welcome! Please see CONTRIBUTING <./CONTRIBUTING.md> for more
-information.
+Set write_uid = false in setup, or call new({ write_uid = false }), to disable
+writeback. Titles or UIDs with tabs or newlines cannot use the structured lookup.
+For those events, disable writeback and use list or sync to retrieve the UID.
 
+Event actions accept calendar and on_complete(result) options. With writeback,
+new() calls on_complete(result, uid) after the final calendar read.
 
-==============================================================================
-11. License                                                  *khalorg-license*
+SYNC                                                            *khalorg-sync*
 
-Distributed under the MIT License.
+:KhalorgSync [calendar]          Sync a whole Org file with khal.
+:KhalorgSyncDryRun [calendar]    Preview changes without applying them.
 
-==============================================================================
-12. Links                                                      *khalorg-links*
+Commands require setup(). Calendar names support completion. The file mapping
+supplies the calendar and path. Without a mapping, the current named .org file
+is used. Save changes before sync. Clean buffers reload after sync. Edits made
+during sync remain in the buffer, with a message about disk changes.
 
-1. *neovim-plugin*: https://github.com/BartSte/khalorg/blob/main/demo/neovim-plugin.gif?raw=true
+Sync runs asynchronously and opens a results buffer. Overlapping operations
+for the same calendar or file are rejected. Missing CLI support produces an
+upgrade message. Remote CalDAV synchronization still requires vdirsyncer.
 
-Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
+Global sync options and per-calendar sync overrides accept start (today),
+stop (90d), conflict_resolution (khal or org), edit_dates (false),
+delete_on_sync (false), state_dir (khalorg default), format (the Org output
+template), and filetags (a tag list). Keep the UID field in sync templates.
+Use sync(opts) or sync_dry_run(opts) for Lua overrides. on_complete(result)
+receives the process result. sync_dry_run() always enables the preview.
 
-vim:tw=78:ts=8:noet:ft=help:norl:
+Khalorg owns UID matching, conflicts, and persistent sync state. Keep its state
+files between runs. Sync can rewrite the Org file using khalorg's event format.
+Deletion propagation is disabled by default. Preview changes before enabling
+delete_on_sync, which propagates deletions between sources.
+
+LIST AND IMPORT                                                 *khalorg-list*
+
+:KhalorgList [calendar] [start] [stop]    Open events in a separate Org buffer.
+:KhalorgCalendar                        Select a calendar, then list events.
+:KhalorgImport [calendar] [start] [stop]  Write events to a new mapped Org file.
+
+The default range comes from the sync configuration (today through 90d).
+Calendar names and common ranges support command completion. Escape spaces in
+command arguments with a backslash. List preserves source files and unsaved
+edits. Save the list buffer with :write /path/to/calendar.org.
+
+Import refuses to overwrite existing files. Use sync for existing files.
+Lua equivalents are list(opts) and import(opts), with calendar, start, stop,
+org_file, and format options. on_complete(result, bufnr) receives the process result
+and any preview buffer.
+
+CUSTOM EXPORTS                                                  *khalorg-make_exporter*
+>
+    local show_event = require('khalorg').make_exporter({ 'cat' })
+    show_event()
+<
+Commands run asynchronously without a shell. Pass an argument array, not a
+shell string. Event text passes directly through stdin.
+
+get_item_in_fold_under_cursor() returns event text or an empty string without
+an active timestamp. Invalid or ambiguous selections raise an error. Public
+actions report these errors through Neovim messages.
+
+HEALTH                                                          *khalorg-health*
+
+:checkhealth khalorg checks Neovim, orgmode, the Org parser, khalorg commands,
+khal, optional vdirsyncer, and mapped directories. CLI probes have a
+five-second timeout. Health checks do not change calendar data.
+
+vim:tw=78:ts=8:ft=help:norl:
